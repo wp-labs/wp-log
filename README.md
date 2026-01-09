@@ -1,7 +1,7 @@
 # wp-log
 
-[![Crates.io](https://img.shields.io/crates/v/wp-log.svg)](https://crates.io/crates/wp-log)
-[![Docs.rs](https://docs.rs/wp-log/badge.svg)](https://docs.rs/wp-log)
+![CI](https://github.com/wp-labs/wp-log/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/wp-labs/wp-log/graph/badge.svg?token=6SVCXBHB6B)](https://codecov.io/gh/wp-labs/wp-log)
 
 `wp-log` bundles the structured logging macros and runtime configuration helpers used inside the WarpParse platform. 6 pre-defined targets (`ctrl`, `data`, `rule`, `dfx`, `mtrc`, `kdb`) keep service logs consistent across control plane, data plane and diagnostics modules, while the configuration helpers wire those targets into `log4rs` with rolling outputs and environment-friendly defaults.
 
