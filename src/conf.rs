@@ -13,7 +13,6 @@ use orion_conf::ToStructError;
 use orion_conf::error::ConfIOReason;
 #[cfg(feature = "std")]
 use orion_conf::error::OrionConfResult;
-use serde::de::{Deserializer, Error as DeError};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
@@ -37,14 +36,6 @@ pub struct LogConf {
     pub output: Output,
     #[serde(default)]
     pub file: Option<FileLogConf>, // required when output has File/Both
-    // Emit a clear error when legacy field is present in config
-    #[serde(
-        rename = "output_path",
-        default,
-        deserialize_with = "reject_output_path",
-        skip_serializing
-    )]
-    _deprecated_output_path: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize, Display)]
@@ -57,21 +48,12 @@ pub enum Output {
 impl Default for LogConf {
     fn default() -> Self {
         LogConf {
-            // Production-oriented default:
-            // - ctrl/launch keep info for operability
-            // - source/sink/stat at info to observe data plane health
-            // - runtime (ex-run_stg) at warn to reduce noise
-            // - model libs at warn; external libs (orion_*) tightened
-            level: String::from(
-                "warn,ctrl=info,launch=info,source=info,sink=info,stat=info,runtime=warn,\
-oml=warn,wpl=warn,klib=warn,orion_error=error,orion_sens=warn",
-            ),
+            level: String::from("warn,ctrl=info,data=error,matrc=error,dfx=warn,kdb=warn"),
             levels: None,
             output: Output::File,
             file: Some(FileLogConf {
                 path: "./data/logs/".to_string(),
             }),
-            _deprecated_output_path: None,
         }
     }
 }
@@ -100,7 +82,6 @@ impl FromStr for LogConf {
             file: Some(FileLogConf {
                 path: "./logs".to_string(),
             }),
-            _deprecated_output_path: None,
         })
     }
 }
@@ -112,18 +93,8 @@ impl LogConf {
             levels: None,
             output: Output::Console,
             file: None,
-            _deprecated_output_path: None,
         }
     }
-}
-
-fn reject_output_path<'de, D>(_de: D) -> Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    Err(D::Error::custom(
-        "log_conf.output_path 已移除；请改用 [log_conf.file].dir",
-    ))
 }
 
 pub const PRINT_STAT: &str = "PRINT_STAT";
@@ -222,7 +193,6 @@ pub fn log_for_test() -> OrionConfResult<()> {
         levels: None,
         output: Output::Console,
         file: None,
-        _deprecated_output_path: None,
     };
     log_init(&conf)
 }
@@ -234,7 +204,6 @@ pub fn log_for_test_level(level: &str) -> OrionConfResult<()> {
         levels: None,
         output: Output::Console,
         file: None,
-        _deprecated_output_path: None,
     };
     log_init(&conf)
 }
@@ -317,7 +286,6 @@ mod tests {
         let conf = LogConf::default();
         assert!(conf.level.contains("warn"));
         assert!(conf.level.contains("ctrl=info"));
-        assert!(conf.level.contains("launch=info"));
         assert_eq!(conf.output, Output::File);
         assert!(conf.file.is_some());
         assert_eq!(conf.file.as_ref().unwrap().path, "./data/logs/");
@@ -352,7 +320,6 @@ mod tests {
             file: Some(FileLogConf {
                 path: "/tmp/logs".into(),
             }),
-            _deprecated_output_path: None,
         };
         let display = conf.to_string();
         assert!(display.contains("level: debug"));
@@ -371,7 +338,6 @@ mod tests {
             levels: Some(levels),
             output: Output::File,
             file: None,
-            _deprecated_output_path: None,
         };
         let display = conf.to_string();
         assert!(display.contains("levels:"));
