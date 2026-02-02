@@ -33,6 +33,38 @@ macro_rules! warn_data  { ($($arg:tt)+) => { $crate::re_exports::log::warn!( tar
 #[macro_export]
 macro_rules! error_data { ($($arg:tt)+) => { $crate::re_exports::log::error!(target: "data", $($arg)+) } }
 
+// data 域（数据平面）
+#[macro_export]
+macro_rules! trace_edata {
+    ($event_id:expr, $($arg:tt)+) => {
+        $crate::re_exports::log::trace!(target: &format!("data:{}", $event_id), $($arg)+)
+    }
+}
+#[macro_export]
+macro_rules! debug_edata {
+    ($event_id:expr, $($arg:tt)+) => {
+        $crate::re_exports::log::debug!(target: &format!("data:{}", $event_id), $($arg)+)
+    }
+}
+#[macro_export]
+macro_rules! info_edata {
+    ($event_id:expr, $($arg:tt)+) => {
+        $crate::re_exports::log::info!(target: &format!("data:{}", $event_id), $($arg)+)
+    }
+}
+#[macro_export]
+macro_rules! warn_edata {
+    ($event_id:expr, $($arg:tt)+) => {
+        $crate::re_exports::log::warn!(target: &format!("data:{}", $event_id), $($arg)+)
+    }
+}
+#[macro_export]
+macro_rules! error_edata {
+    ($event_id:expr, $($arg:tt)+) => {
+        $crate::re_exports::log::error!(target: &format!("data:{}", $event_id), $($arg)+)
+    }
+}
+
 // rule 域（策略/插件/接口）
 #[macro_export]
 macro_rules! trace_rule { ($($arg:tt)+) => { $crate::re_exports::log::trace!(target: "rule", $($arg)+) } }
