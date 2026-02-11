@@ -20,7 +20,7 @@ name = "wp_log"
 
 [dependencies]
 log = "0.4"
-toml = "0.9"
+toml = "1.0"
 orion-error = "0.5"
 orion-variate= "0.10"
 orion_conf =  { version = "0.4", features = ["toml"]}
