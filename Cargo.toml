@@ -24,7 +24,7 @@ toml = "1.0"
 orion-error = "0.6"
 orion-variate= "0.11"
 orion_conf =  { version = "0.5", features = ["toml"]}
-winnow = "0.7"
+winnow = "1.0"
 derive_more = "2.1"
 
 unicode-segmentation = "1.12"
