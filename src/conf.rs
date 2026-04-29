@@ -13,6 +13,8 @@ use orion_conf::ToStructError;
 use orion_conf::error::ConfIOReason;
 #[cfg(feature = "std")]
 use orion_conf::error::OrionConfResult;
+use orion_error::UvsReason;
+use orion_error::compat_traits::ErrorOweBase;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
@@ -101,8 +103,6 @@ pub const PRINT_STAT: &str = "PRINT_STAT";
 
 #[cfg(feature = "std")]
 pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
-    use orion_conf::ErrorOwe;
-
     let (root_level, target_levels) = parse_level_spec(&conf.level)?;
 
     // Encoder: timestamp + [LEVEL] + [target] + message; no module path/line
@@ -119,8 +119,6 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
             root = root.appender("stdout");
         }
         Output::File => {
-            use orion_conf::ErrorOwe;
-
             let file_path = resolve_log_file(conf)?;
             // Ensure parent dir exists
             if let Some(p) = std::path::Path::new(&file_path).parent() {
@@ -131,21 +129,19 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
             let roller = FixedWindowRoller::builder()
                 .base(0)
                 .build(&pattern, 10)
-                .owe_logic()
-                .with(pattern.as_str())?;
+                .owe(ConfIOReason::from(UvsReason::logic_error()))
+                .doing(pattern.as_str())?;
             let trigger = SizeTrigger::new(10 * 1024 * 1024);
             let policy = CompoundPolicy::new(Box::new(trigger), Box::new(roller));
             let file = RollingFileAppender::builder()
                 .encoder(Box::new(enc))
                 .build(&file_path, Box::new(policy))
-                .owe_res()
-                .with(file_path.as_str())?;
+                .owe(ConfIOReason::from(UvsReason::resource_error()))
+                .doing(file_path.as_str())?;
             config = config.appender(Appender::builder().build("file", Box::new(file)));
             root = root.appender("file");
         }
         Output::Both => {
-            use orion_conf::ErrorOwe;
-
             let file_path = resolve_log_file(conf)?;
             if let Some(p) = std::path::Path::new(&file_path).parent() {
                 let _ = std::fs::create_dir_all(p);
@@ -158,15 +154,15 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
             let roller = FixedWindowRoller::builder()
                 .base(0)
                 .build(&pattern, 10)
-                .owe_logic()
-                .want(pattern.as_str())?;
+                .owe(ConfIOReason::from(UvsReason::logic_error()))
+                .doing(pattern.as_str())?;
             let trigger = SizeTrigger::new(10 * 1024 * 1024);
             let policy = CompoundPolicy::new(Box::new(trigger), Box::new(roller));
             let file = RollingFileAppender::builder()
                 .encoder(Box::new(enc))
                 .build(&file_path, Box::new(policy))
-                .owe_res()
-                .with(file_path.as_str())?;
+                .owe(ConfIOReason::from(UvsReason::resource_error()))
+                .doing(file_path.as_str())?;
             config = config.appender(Appender::builder().build("file", Box::new(file)));
             root = root.appender("stdout").appender("file");
         }
@@ -178,11 +174,11 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
 
     let cfg = config
         .build(root.build(root_level))
-        .owe_logic()
-        .want("build log cfg")?;
+        .owe(ConfIOReason::from(UvsReason::logic_error()))
+        .doing("build log cfg")?;
     log4rs::init_config(cfg)
-        .owe_logic()
-        .want("init log config")?;
+        .owe(ConfIOReason::from(UvsReason::logic_error()))
+        .doing("init log config")?;
     Ok(())
 }
 
@@ -247,7 +243,7 @@ fn parse_lv(s: &str) -> OrionConfResult<LevelFilter> {
         "trace" => Ok(LevelFilter::Trace),
         _ => ConfIOReason::Other("unknow log level".into())
             .err_result()
-            .with(s),
+            .doing(s),
     }
 }
 
