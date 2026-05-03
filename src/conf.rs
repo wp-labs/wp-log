@@ -13,8 +13,7 @@ use orion_conf::ToStructError;
 use orion_conf::error::ConfIOReason;
 #[cfg(feature = "std")]
 use orion_conf::error::OrionConfResult;
-use orion_error::UvsReason;
-use orion_error::compat_traits::ErrorOweBase;
+use orion_error::conversion::SourceErr;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
@@ -129,15 +128,13 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
             let roller = FixedWindowRoller::builder()
                 .base(0)
                 .build(&pattern, 10)
-                .owe(ConfIOReason::from(UvsReason::logic_error()))
-                .doing(pattern.as_str())?;
+                .source_err(ConfIOReason::logic_error(), pattern.as_str())?;
             let trigger = SizeTrigger::new(10 * 1024 * 1024);
             let policy = CompoundPolicy::new(Box::new(trigger), Box::new(roller));
             let file = RollingFileAppender::builder()
                 .encoder(Box::new(enc))
                 .build(&file_path, Box::new(policy))
-                .owe(ConfIOReason::from(UvsReason::resource_error()))
-                .doing(file_path.as_str())?;
+                .source_err(ConfIOReason::resource_error(), file_path.as_str())?;
             config = config.appender(Appender::builder().build("file", Box::new(file)));
             root = root.appender("file");
         }
@@ -154,15 +151,13 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
             let roller = FixedWindowRoller::builder()
                 .base(0)
                 .build(&pattern, 10)
-                .owe(ConfIOReason::from(UvsReason::logic_error()))
-                .doing(pattern.as_str())?;
+                .source_err(ConfIOReason::logic_error(), pattern.as_str())?;
             let trigger = SizeTrigger::new(10 * 1024 * 1024);
             let policy = CompoundPolicy::new(Box::new(trigger), Box::new(roller));
             let file = RollingFileAppender::builder()
                 .encoder(Box::new(enc))
                 .build(&file_path, Box::new(policy))
-                .owe(ConfIOReason::from(UvsReason::resource_error()))
-                .doing(file_path.as_str())?;
+                .source_err(ConfIOReason::resource_error(), file_path.as_str())?;
             config = config.appender(Appender::builder().build("file", Box::new(file)));
             root = root.appender("stdout").appender("file");
         }
@@ -174,10 +169,10 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
 
     let cfg = config
         .build(root.build(root_level))
-        .owe(ConfIOReason::from(UvsReason::logic_error()))
+        .map_err(|e| ConfIOReason::logic_error().to_err().with_source(e))
         .doing("build log cfg")?;
     log4rs::init_config(cfg)
-        .owe(ConfIOReason::from(UvsReason::logic_error()))
+        .map_err(|e| ConfIOReason::logic_error().to_err().with_source(e))
         .doing("init log config")?;
     Ok(())
 }

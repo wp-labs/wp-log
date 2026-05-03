@@ -1,6 +1,6 @@
 [package]
 name = "wp-log"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 license = "Elastic-2.0"
 authors = ["WarpParse Dev Team"]
@@ -21,9 +21,9 @@ name = "wp_log"
 [dependencies]
 log = "0.4"
 toml = "1.0"
-orion-variate= "0.12"
-orion-error = "0.7"
-orion_conf =  { version = "0.6", features = ["toml"]}
+orion-variate = "0.13"
+orion-error = { version = "0.8", features = ["anyhow"] }
+orion_conf =  { version = "0.7", features = ["toml"]}
 derive_more = "2.1"
 
 unicode-segmentation = "1.12"
