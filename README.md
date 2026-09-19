@@ -1,7 +1,11 @@
 # wp-log
 
-![CI](https://github.com/wp-labs/wp-log/workflows/CI/badge.svg)
+[![Crates.io](https://img.shields.io/crates/v/wp-log.svg)](https://crates.io/crates/wp-log)
+[![CI](https://img.shields.io/github/actions/workflow/status/wp-labs/wp-log/ci.yml?branch=main)](https://github.com/wp-labs/wp-log/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/wp-labs/wp-log/graph/badge.svg?token=6SVCXBHB6B)](https://codecov.io/gh/wp-labs/wp-log)
+[![Crates.io downloads](https://img.shields.io/crates/d/wp-log)](https://crates.io/crates/wp-log)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Rust Edition](https://img.shields.io/badge/edition-2024-orange.svg)](https://doc.rust-lang.org/edition-guide/rust-2024/index.html)
 
 `wp-log` bundles the structured logging macros and runtime configuration helpers used inside the WarpParse platform. 6 pre-defined targets (`ctrl`, `data`, `rule`, `dfx`, `mtrc`, `kdb`) keep service logs consistent across control plane, data plane and diagnostics modules, while the configuration helpers wire those targets into `log4rs` with rolling outputs and environment-friendly defaults.
 
@@ -78,4 +82,4 @@ Set `PRINT_STAT=true` to make `println_mtrc!` emit lightweight counters during t
 
 ## License
 
-Licensed under the Elastic License 2.0. See `LICENSE` (if bundled) or <https://www.elastic.co/licensing/elastic-license> for details.
+Licensed under the Apache License 2.0. See [`LICENSE`](LICENSE) for details.

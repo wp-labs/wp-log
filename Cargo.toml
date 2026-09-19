@@ -1,8 +1,8 @@
 [package]
 name = "wp-log"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2024"
-license = "Elastic-2.0"
+license = "Apache-2.0"
 authors = ["WarpParse Dev Team"]
 description = "Structured logging macros plus log4rs configuration helpers for WarpParse services"
 readme = "README.md"
@@ -31,7 +31,7 @@ serde = { version = "1.0", features = ["derive"] }
 thiserror = "2.0"
 serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
-strum_macros = "0.27"
+strum_macros = "0.28"
 anyhow = "1.0"
 log4rs = { version = "1.4", features = ["gzip"] }
 getset = "0.1"

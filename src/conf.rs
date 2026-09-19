@@ -124,7 +124,7 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
                 let _ = std::fs::create_dir_all(p);
             }
             // Rolling: 10MB, keep 10 files, gzip
-            let pattern = format!("{}.{{}}.gz", &file_path);
+            let pattern = format!("{}.{{}}.gz", file_path);
             let roller = FixedWindowRoller::builder()
                 .base(0)
                 .build(&pattern, 10)
@@ -147,7 +147,7 @@ pub fn log_init(conf: &LogConf) -> OrionConfResult<()> {
                 .encoder(Box::new(enc.clone()))
                 .build();
             config = config.appender(Appender::builder().build("stdout", Box::new(stdout)));
-            let pattern = format!("{}.{{}}.gz", &file_path);
+            let pattern = format!("{}.{{}}.gz", file_path);
             let roller = FixedWindowRoller::builder()
                 .base(0)
                 .build(&pattern, 10)
